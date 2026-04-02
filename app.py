@@ -344,7 +344,7 @@ with c3:
     t_area   = st.text_input("Bench Area (m²)",           value="5000",  placeholder="e.g. 5000")
     t_cost   = st.text_input("Explosive Unit Cost ($/t)",  value="450",   placeholder="e.g. 450")
 
-run = st.button("Run Blast Design")
+run = st.button("CALCULATE")
 
 
 # ── RUN ──────────────────────────────────────────────────────
