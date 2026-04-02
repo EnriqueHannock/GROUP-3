@@ -160,17 +160,6 @@ label, [data-testid="stNumberInput"] label p {
     margin-top: 16px;
     letter-spacing: 1px;
 }
-[data-testid="stDownloadButton"] button {
-    background: #071A2B !important;
-    color: #12A3D8 !important;
-    border: 1px solid #12A3D8 !important;
-    font-family: 'Share Tech Mono', monospace !important;
-    font-size: 12px !important;
-    letter-spacing: 2px !important;
-    border-radius: 5px !important;
-    width: 100% !important;
-    margin-top: 16px !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
