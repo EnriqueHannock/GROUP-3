@@ -191,38 +191,6 @@ def run_design(bench_height, hole_diameter, rock_density,
     return dict(burden=burden, spacing=spacing, holes=holes, charge=charge,
                 total_exp=total_exp, rock_vol=rock_vol, pf=pf, cost=cost)
 
-def make_report(inp, res):
-    ts = datetime.now().strftime("%d %B %Y  %H:%M:%S")
-    return "\n".join([
-        "=" * 54,
-        "   BLAST DESIGN & COST ESTIMATION REPORT",
-        f"   {ts}",
-        "=" * 54,
-        "",
-        "  INPUT PARAMETERS",
-        "  " + "-" * 42,
-        f"  Bench Height        : {inp['bench_height']:.2f} m",
-        f"  Hole Diameter       : {inp['hole_diameter']:.4f} m",
-        f"  Rock Density        : {inp['rock_density']:.2f} t/m3",
-        f"  Explosive Density   : {inp['explosive_density']:.2f} t/m3",
-        f"  Bench Area          : {inp['area']:.2f} m2",
-        f"  Explosive Unit Cost : ${inp['unit_cost']:.2f} /t",
-        "",
-        "  RESULTS",
-        "  " + "-" * 42,
-        f"  Burden              : {res['burden']:.3f} m",
-        f"  Spacing             : {res['spacing']:.3f} m",
-        f"  Number of Holes     : {res['holes']}",
-        f"  Charge per Hole     : {res['charge']:.4f} t",
-        f"  Total Explosive     : {res['total_exp']:.3f} t",
-        f"  Rock Volume         : {res['rock_vol']:.2f} m3",
-        f"  Powder Factor       : {res['pf']:.4f} t/m3",
-        f"  Total Blasting Cost : ${res['cost']:,.2f}",
-        "",
-        "=" * 54,
-    ])
-
-
 # ── TITLE ────────────────────────────────────────────────────
 
 st.markdown("""
