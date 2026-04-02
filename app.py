@@ -4,7 +4,6 @@ from datetime import datetime
 
 st.set_page_config(page_title="Blast Design Tool", layout="wide")
 
-# ── CSS ──────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap');
@@ -51,21 +50,29 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
     margin: 24px 0 14px 0;
 }
 
-label, [data-testid="stNumberInput"] label p {
+/* Input labels */
+label p, .stTextInput label p {
     font-family: 'Exo 2', sans-serif !important;
     font-size: 13px !important;
     color: #88BDD6 !important;
 }
 
-[data-testid="stNumberInput"] input {
+/* Text input fields - clean, no spinners */
+[data-testid="stTextInput"] input {
     background-color: #040E19 !important;
     color: #12A3D8 !important;
     border: 1px solid #0D3D5C !important;
     border-radius: 5px !important;
     font-family: 'Share Tech Mono', monospace !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
+    padding: 10px 14px !important;
+}
+[data-testid="stTextInput"] input:focus {
+    border-color: #12A3D8 !important;
+    box-shadow: 0 0 0 2px rgba(18,163,216,0.12) !important;
 }
 
+/* Run button */
 .stButton > button {
     background: linear-gradient(135deg, #0A7FAD, #0C9A56) !important;
     color: #ffffff !important;
@@ -81,13 +88,13 @@ label, [data-testid="stNumberInput"] label p {
 }
 .stButton > button:hover { opacity: 0.85 !important; }
 
+/* Output panels */
 .output-panel {
     background: #071A2B;
     border: 1px solid #0D3D5C;
     border-radius: 10px;
     padding: 28px 32px;
     margin-top: 10px;
-    height: 100%;
 }
 .output-panel-title {
     font-family: 'Share Tech Mono', monospace;
@@ -124,6 +131,7 @@ label, [data-testid="stNumberInput"] label p {
     margin-left: 5px;
 }
 
+/* Cost banner */
 .cost-banner {
     background: linear-gradient(120deg, #062A3D, #063320);
     border: 1px solid #0FBF6A;
@@ -152,6 +160,19 @@ label, [data-testid="stNumberInput"] label p {
     color: #4D7A99;
     margin-top: 8px;
 }
+
+/* Error box */
+.err-box {
+    background: #1A0A0A;
+    border: 1px solid #8B1A1A;
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #E05555;
+    margin-top: 12px;
+}
+
 .ts {
     font-family: 'Share Tech Mono', monospace;
     font-size: 10px;
@@ -180,6 +201,7 @@ def run_design(bench_height, hole_diameter, rock_density,
     return dict(burden=burden, spacing=spacing, holes=holes, charge=charge,
                 total_exp=total_exp, rock_vol=rock_vol, pf=pf, cost=cost)
 
+
 # ── TITLE ────────────────────────────────────────────────────
 
 st.markdown("""
@@ -190,31 +212,53 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── INPUTS ────────────────────────────────────────────────────
+# ── INPUTS  (st.text_input — no +/- spinners) ─────────────────
 
 st.markdown('<div class="section-head">Input Parameters</div>', unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns(3)
 
 with c1:
-    bench_height      = st.number_input("Bench Height (m)",         min_value=0.1,  value=10.0,   step=0.5,   format="%.1f")
-    hole_diameter     = st.number_input("Hole Diameter (m)",        min_value=0.01, value=0.115,  step=0.005, format="%.4f")
+    t_bench  = st.text_input("Bench Height (m)",         value="10.0",  placeholder="e.g. 10.0")
+    t_hole   = st.text_input("Hole Diameter (m)",        value="0.115", placeholder="e.g. 0.115")
 
 with c2:
-    rock_density      = st.number_input("Rock Density (t/m³)",      min_value=0.1,  value=2.7,    step=0.1,   format="%.2f")
-    explosive_density = st.number_input("Explosive Density (t/m³)", min_value=0.1,  value=0.85,   step=0.05,  format="%.2f")
+    t_rock   = st.text_input("Rock Density (t/m³)",      value="2.7",   placeholder="e.g. 2.7")
+    t_expden = st.text_input("Explosive Density (t/m³)", value="0.85",  placeholder="e.g. 0.85")
 
 with c3:
-    area              = st.number_input("Bench Area (m²)",          min_value=1.0,  value=5000.0, step=100.0, format="%.1f")
-    unit_cost         = st.number_input("Explosive Unit Cost ($/t)", min_value=0.0,  value=450.0,  step=10.0,  format="%.2f")
+    t_area   = st.text_input("Bench Area (m²)",          value="5000",  placeholder="e.g. 5000")
+    t_cost   = st.text_input("Explosive Unit Cost ($/t)", value="450",   placeholder="e.g. 450")
 
 run = st.button("RUN BLAST DESIGN")
 
 
-# ── OUTPUTS ───────────────────────────────────────────────────
+# ── RUN ───────────────────────────────────────────────────────
 
 if run:
-    try:
+    errors = []
+
+    def parse(val, name):
+        try:
+            v = float(val)
+            if v <= 0:
+                errors.append(f"{name} must be greater than 0.")
+            return v
+        except ValueError:
+            errors.append(f"{name} — invalid number entered.")
+            return None
+
+    bench_height      = parse(t_bench,  "Bench Height")
+    hole_diameter     = parse(t_hole,   "Hole Diameter")
+    rock_density      = parse(t_rock,   "Rock Density")
+    explosive_density = parse(t_expden, "Explosive Density")
+    area              = parse(t_area,   "Bench Area")
+    unit_cost         = parse(t_cost,   "Explosive Unit Cost")
+
+    if errors:
+        err_html = "".join(f"<div>&#x26A0; {e}</div>" for e in errors)
+        st.markdown(f'<div class="err-box">{err_html}</div>', unsafe_allow_html=True)
+    else:
         res = run_design(bench_height, hole_diameter, rock_density,
                          explosive_density, unit_cost, area)
         inp = dict(bench_height=bench_height, hole_diameter=hole_diameter,
@@ -223,8 +267,9 @@ if run:
         st.session_state["res"] = res
         st.session_state["inp"] = inp
         st.session_state["ts"]  = datetime.now().strftime("%d %b %Y  %H:%M:%S")
-    except Exception as e:
-        st.error(f"Calculation error: {e}")
+
+
+# ── OUTPUTS ───────────────────────────────────────────────────
 
 if "res" in st.session_state:
     res = st.session_state["res"]
@@ -241,19 +286,19 @@ if "res" in st.session_state:
             <div class="output-panel-title">Drill Design</div>
             <div class="r-row">
                 <span class="r-label">Burden</span>
-                <span class="r-value">{res['burden']:.3f} <span class="r-unit">m</span></span>
+                <span class="r-value">{res['burden']:.3f}<span class="r-unit"> m</span></span>
             </div>
             <div class="r-row">
                 <span class="r-label">Spacing</span>
-                <span class="r-value">{res['spacing']:.3f} <span class="r-unit">m</span></span>
+                <span class="r-value">{res['spacing']:.3f}<span class="r-unit"> m</span></span>
             </div>
             <div class="r-row">
                 <span class="r-label">Number of Drill Holes</span>
-                <span class="r-value">{res['holes']} <span class="r-unit">holes</span></span>
+                <span class="r-value">{res['holes']}<span class="r-unit"> holes</span></span>
             </div>
             <div class="r-row">
                 <span class="r-label">Charge per Hole</span>
-                <span class="r-value">{res['charge']:.4f} <span class="r-unit">t</span></span>
+                <span class="r-value">{res['charge']:.4f}<span class="r-unit"> t</span></span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -264,15 +309,15 @@ if "res" in st.session_state:
             <div class="output-panel-title">Explosive & Rock Volume</div>
             <div class="r-row">
                 <span class="r-label">Total Explosive Quantity</span>
-                <span class="r-value">{res['total_exp']:.3f} <span class="r-unit">t</span></span>
+                <span class="r-value">{res['total_exp']:.3f}<span class="r-unit"> t</span></span>
             </div>
             <div class="r-row">
                 <span class="r-label">Rock Volume</span>
-                <span class="r-value">{res['rock_vol']:.2f} <span class="r-unit">m³</span></span>
+                <span class="r-value">{res['rock_vol']:.2f}<span class="r-unit"> m³</span></span>
             </div>
             <div class="r-row">
                 <span class="r-label">Powder Factor</span>
-                <span class="r-value">{res['pf']:.4f} <span class="r-unit">t/m³</span></span>
+                <span class="r-value">{res['pf']:.4f}<span class="r-unit"> t/m³</span></span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -288,8 +333,3 @@ if "res" in st.session_state:
     """, unsafe_allow_html=True)
 
     st.markdown(f'<div class="ts">Calculated: {ts}</div>', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    report = make_report(inp, res)
-    fname  = f"BlastDesign_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    st.download_button("SAVE REPORT (.txt)", data=report, file_name=fname, mime="text/plain")
