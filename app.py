@@ -1,6 +1,7 @@
 import math
 import streamlit as st
 from datetime import datetime
+import pandas as pd
 
 st.set_page_config(page_title="Blast Cost Estimator", layout="wide", page_icon="💣")
 
@@ -38,14 +39,12 @@ html, body,
     content: '';
     position: absolute;
     inset: 0;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 80px,
-            rgba(255,255,255,0.012) 80px,
-            rgba(255,255,255,0.012) 81px
-        );
+    background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 80px,
+        rgba(255,255,255,0.012) 80px,
+        rgba(255,255,255,0.012) 81px
+    );
     pointer-events: none;
 }
 .masthead::after {
@@ -70,8 +69,7 @@ html, body,
 .mh-eyebrow::before {
     content: '';
     display: inline-block;
-    width: 28px;
-    height: 1px;
+    width: 28px; height: 1px;
     background: #6B9E6B;
 }
 .mh-title {
@@ -84,10 +82,7 @@ html, body,
     letter-spacing: -1.5px;
     margin-bottom: 12px;
 }
-.mh-title em {
-    color: #C0392B;
-    font-style: italic;
-}
+.mh-title em { color: #C0392B; font-style: italic; }
 .mh-desc {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
@@ -99,25 +94,15 @@ html, body,
 }
 
 /* ═══════════════════════════
-   PAGE BODY
-═══════════════════════════ */
-.page-body {
-    padding: 52px 72px 64px;
-}
-
-/* ═══════════════════════════
    SECTION RULE
 ═══════════════════════════ */
 .sec-rule {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin: 0 0 32px 0;
+    margin: 0 0 28px 0;
 }
-.sec-rule-icon {
-    font-size: 16px;
-    line-height: 1;
-}
+.sec-rule-icon { font-size: 16px; line-height: 1; }
 .sec-rule-txt {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
@@ -128,23 +113,21 @@ html, body,
     text-transform: uppercase;
 }
 .sec-rule-line {
-    flex: 1;
-    height: 1px;
+    flex: 1; height: 1px;
     background: linear-gradient(90deg, #1A2E1A 0%, transparent 100%);
     opacity: 0.18;
 }
 
 /* ═══════════════════════════
-   INPUT CARDS — underline style
+   INPUT CARDS
 ═══════════════════════════ */
 .inp-card {
     background: #F8F4EE;
     border-radius: 3px;
-    padding: 22px 24px 18px;
-    margin-bottom: 18px;
+    padding: 16px 20px 8px;
+    margin-bottom: 14px;
     border-top: 3px solid #1A2E1A;
     transition: box-shadow 0.2s, transform 0.2s;
-    position: relative;
 }
 .inp-card:hover {
     box-shadow: 4px 4px 0 #D4CECC;
@@ -153,17 +136,14 @@ html, body,
 .inp-card-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 8px;
+    margin-bottom: 4px;
 }
-.inp-card-icon {
-    font-size: 15px;
-    opacity: 0.9;
-}
+.inp-card-icon { font-size: 13px; opacity: 0.85; }
 .inp-card-label {
     font-family: 'Lora', serif;
     font-style: italic;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #1A2E1A;
     letter-spacing: 2px;
@@ -181,14 +161,13 @@ html, body,
     color: #1A1A18 !important;
     font-family: 'DM Mono', monospace !important;
     font-style: italic !important;
-    font-size: 24px !important;
+    font-size: 22px !important;
     font-weight: 300 !important;
-    padding: 6px 2px 10px !important;
+    padding: 4px 2px 8px !important;
     letter-spacing: 0.5px !important;
     box-shadow: none !important;
     outline: none !important;
     transition: border-color 0.2s !important;
-    width: 100% !important;
 }
 [data-testid="stTextInput"] input:focus {
     border-bottom-color: #C0392B !important;
@@ -196,7 +175,7 @@ html, body,
 }
 [data-testid="stTextInput"] input::placeholder {
     color: #C0B8B0 !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
     font-style: italic !important;
 }
 [data-testid="stTextInput"] label { display: none !important; }
@@ -208,7 +187,7 @@ html, body,
 }
 
 /* ═══════════════════════════
-   CALCULATE BUTTON — pill/round
+   CALCULATE BUTTON — pill
 ═══════════════════════════ */
 .stButton > button {
     background: #C0392B !important;
@@ -222,7 +201,7 @@ html, body,
     border-radius: 9999px !important;
     padding: 18px 56px !important;
     width: 100% !important;
-    margin-top: 28px !important;
+    margin-top: 24px !important;
     cursor: pointer !important;
     box-shadow: 0 6px 20px rgba(192,57,43,0.28) !important;
     transition: background 0.2s, box-shadow 0.2s, transform 0.15s !important;
@@ -232,30 +211,19 @@ html, body,
     box-shadow: 0 10px 28px rgba(192,57,43,0.38) !important;
     transform: translateY(-2px) !important;
 }
-.stButton > button:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 12px rgba(192,57,43,0.22) !important;
-}
 
 /* ═══════════════════════════
-   RESULTS AREA
+   RESULTS HEADER BAND
 ═══════════════════════════ */
-.results-shell {
+.res-band {
     background: #1A2E1A;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 12px;
-}
-
-.res-header {
-    padding: 22px 36px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 16px 24px;
+    border-radius: 4px 4px 0 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
-.res-header-icon { font-size: 16px; }
-.res-header-txt {
+.res-band-txt {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-weight: 300;
@@ -265,78 +233,29 @@ html, body,
     text-transform: uppercase;
 }
 
-.res-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1px;
-    background: rgba(255,255,255,0.04);
-}
-.res-block {
-    background: #1A2E1A;
-    padding: 28px 32px;
-    transition: background 0.18s;
-    position: relative;
+/* ═══════════════════════════
+   DATAFRAME CONTAINER WRAP
+═══════════════════════════ */
+.df-wrap {
+    border: 1px solid #D4CECC;
+    border-top: none;
+    border-radius: 0;
     overflow: hidden;
+    background: #F8F4EE;
 }
-.res-block:hover { background: #213621; }
-.res-block::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: #C0392B;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-.res-block:hover::after { transform: scaleX(1); }
-
-.res-block-label {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-weight: 300;
-    font-size: 12px;
-    color: #5A7A5A;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    text-transform: lowercase;
-}
-.res-block-val {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-weight: 700;
-    font-size: 32px;
-    color: #EEE9E0;
-    line-height: 1;
-    letter-spacing: -0.5px;
-}
-.res-block-unit {
-    font-family: 'DM Mono', monospace;
-    font-style: italic;
-    font-size: 10px;
-    color: #3A5A3A;
-    letter-spacing: 3px;
-    margin-top: 7px;
-    text-transform: uppercase;
-}
-
-/* powder factor gets accent colour */
-.res-block.accent { background: #142014; }
-.res-block.accent .res-block-val { color: #88CC88; }
-.res-block.accent .res-block-label { color: #4A7A4A; }
 
 /* ═══════════════════════════
    COST STRIP
 ═══════════════════════════ */
 .cost-strip {
     background: #C0392B;
-    padding: 32px 36px;
+    padding: 26px 30px;
+    border-radius: 0 0 4px 4px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
-    border-top: 1px solid rgba(255,255,255,0.08);
 }
 .cost-lhs-label {
     font-family: 'Cormorant Garamond', serif;
@@ -359,7 +278,7 @@ html, body,
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-weight: 700;
-    font-size: 52px;
+    font-size: 50px;
     color: #EEE9E0;
     line-height: 1;
     letter-spacing: -2px;
@@ -367,19 +286,27 @@ html, body,
 }
 
 /* ═══════════════════════════
-   TIMESTAMP
+   COPY HINT + TIMESTAMP
 ═══════════════════════════ */
+.copy-hint {
+    font-family: 'DM Mono', monospace;
+    font-style: italic;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #A09888;
+    text-transform: uppercase;
+    text-align: right;
+    margin-bottom: 6px;
+}
 .ts-line {
     font-family: 'DM Mono', monospace;
     font-style: italic;
     font-size: 9px;
     letter-spacing: 3px;
-    color: #5A7A5A;
+    color: #8A8078;
     text-align: right;
-    padding: 14px 36px;
-    background: #142014;
+    margin-top: 10px;
     text-transform: uppercase;
-    border-top: 1px solid rgba(255,255,255,0.04);
 }
 
 /* ═══════════════════════════
@@ -398,12 +325,8 @@ html, body,
     font-style: italic;
     font-size: 13px;
     color: #C0392B;
-    line-height: 2.2;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    line-height: 2.4;
 }
-.err-bullet { font-style: normal; font-size: 10px; opacity: 0.6; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -435,10 +358,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
 # ── INPUTS ───────────────────────────────────────────────────
 
 st.markdown("""
-<div class="page-body" style="padding-bottom:0;">
+<div style="padding: 44px 72px 0;">
     <div class="sec-rule">
         <span class="sec-rule-icon">⚙️</span>
         <span class="sec-rule-txt">Input Parameters</span>
@@ -447,83 +371,39 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Padding spacer
-st.markdown('<div style="padding: 0 72px;">', unsafe_allow_html=True)
+col_l, col_r = st.columns([1, 20])   # left spacer
+with col_r:
+    pad_l, c1, c2, c3, pad_r = st.columns([1, 6, 6, 6, 1])
 
-c1, c2, c3 = st.columns(3, gap="medium")
+    with c1:
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">📏</span><span class="inp-card-label">Bench Height (m)</span></div></div>', unsafe_allow_html=True)
+        t_bench = st.text_input("bh", value="10.0", placeholder="e.g. 10.0", label_visibility="hidden", key="bench")
 
-with c1:
-    st.markdown("""
-    <div class="inp-card">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">📏</span>
-            <span class="inp-card-label">Bench Height</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_bench = st.text_input("_bench_height", value="10.0", placeholder="e.g. 10.0", label_visibility="hidden", key="bench")
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">🕳️</span><span class="inp-card-label">Hole Diameter (m)</span></div></div>', unsafe_allow_html=True)
+        t_hole = st.text_input("hd", value="0.115", placeholder="e.g. 0.115", label_visibility="hidden", key="hole")
 
-    st.markdown("""
-    <div class="inp-card" style="margin-top:4px;">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">🕳️</span>
-            <span class="inp-card-label">Hole Diameter</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_hole = st.text_input("_hole_dia", value="0.115", placeholder="e.g. 0.115", label_visibility="hidden", key="hole")
+    with c2:
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">🪨</span><span class="inp-card-label">Rock Density (t/m³)</span></div></div>', unsafe_allow_html=True)
+        t_rock = st.text_input("rd", value="2.7", placeholder="e.g. 2.7", label_visibility="hidden", key="rock")
 
-with c2:
-    st.markdown("""
-    <div class="inp-card">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">🪨</span>
-            <span class="inp-card-label">Rock Density</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_rock = st.text_input("_rock_den", value="2.7", placeholder="e.g. 2.7", label_visibility="hidden", key="rock")
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">💥</span><span class="inp-card-label">Explosive Density (t/m³)</span></div></div>', unsafe_allow_html=True)
+        t_expden = st.text_input("ed", value="0.85", placeholder="e.g. 0.85", label_visibility="hidden", key="expden")
 
-    st.markdown("""
-    <div class="inp-card" style="margin-top:4px;">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">💥</span>
-            <span class="inp-card-label">Explosive Density</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_expden = st.text_input("_exp_den", value="0.85", placeholder="e.g. 0.85", label_visibility="hidden", key="expden")
+    with c3:
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">📐</span><span class="inp-card-label">Bench Area (m²)</span></div></div>', unsafe_allow_html=True)
+        t_area = st.text_input("ba", value="5000", placeholder="e.g. 5000", label_visibility="hidden", key="area")
 
-with c3:
-    st.markdown("""
-    <div class="inp-card">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">📐</span>
-            <span class="inp-card-label">Bench Area</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_area = st.text_input("_area", value="5000", placeholder="e.g. 5000", label_visibility="hidden", key="area")
+        st.markdown('<div class="inp-card"><div class="inp-card-header"><span class="inp-card-icon">💰</span><span class="inp-card-label">Unit Cost ($/t)</span></div></div>', unsafe_allow_html=True)
+        t_cost = st.text_input("uc", value="450", placeholder="e.g. 450", label_visibility="hidden", key="cost")
 
-    st.markdown("""
-    <div class="inp-card" style="margin-top:4px;">
-        <div class="inp-card-header">
-            <span class="inp-card-icon">💰</span>
-            <span class="inp-card-label">Unit Cost ($/t)</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    t_cost = st.text_input("_unit_cost", value="450", placeholder="e.g. 450", label_visibility="hidden", key="cost")
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ── BUTTON ───────────────────────────────────────────────────
 
-st.markdown('<div style="padding: 0 72px;">', unsafe_allow_html=True)
-_, btn_col, _ = st.columns([1, 2, 1])
-with btn_col:
+_, btn_mid, _ = st.columns([3, 4, 3])
+with btn_mid:
+    st.markdown('<div style="padding: 0 20px;">', unsafe_allow_html=True)
     run = st.button("Estimate Cost")
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ── CALCULATE ────────────────────────────────────────────────
@@ -549,12 +429,11 @@ if run:
     unit_cost         = parse(t_cost,   "Unit Cost")
 
     if errors:
-        items = "".join(
-            f'<div class="err-item"><span class="err-bullet">▶</span> {e}</div>'
-            for e in errors
+        items = "".join(f'<div class="err-item">▶ &nbsp;{e}</div>' for e in errors)
+        st.markdown(
+            f'<div style="padding:0 72px;"><div class="err-shell">{items}</div></div>',
+            unsafe_allow_html=True
         )
-        st.markdown(f'<div style="padding:0 72px;"><div class="err-shell">{items}</div></div>',
-                    unsafe_allow_html=True)
     else:
         res = run_design(bench_height, hole_diameter, rock_density,
                          explosive_density, unit_cost, area)
@@ -575,7 +454,7 @@ if "res" in st.session_state:
     ts  = st.session_state["ts"]
 
     st.markdown("""
-    <div style="padding: 0 72px; margin-top: 40px;">
+    <div style="padding: 44px 72px 0;">
         <div class="sec-rule">
             <span class="sec-rule-icon">📊</span>
             <span class="sec-rule-txt">Results</span>
@@ -584,53 +463,61 @@ if "res" in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
+    # Header band above table
+    st.markdown("""
+    <div style="padding: 0 72px 0;">
+        <div class="res-band">
+            <span style="font-size:14px;">🔩</span>
+            <span class="res-band-txt">Computed output — drill &amp; blast parameters</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Build DataFrame
+    df = pd.DataFrame({
+        "Parameter": [
+            "Burden",
+            "Hole Spacing",
+            "Number of Drill Holes",
+            "Charge per Hole",
+            "Total Explosive",
+            "Rock Volume",
+            "Powder Factor",
+        ],
+        "Value": [
+            f"{res['burden']:.3f}",
+            f"{res['spacing']:.3f}",
+            f"{res['holes']}",
+            f"{res['charge']:.4f}",
+            f"{res['total_exp']:.3f}",
+            f"{res['rock_vol']:.2f}",
+            f"{res['pf']:.4f}",
+        ],
+        "Unit": ["m", "m", "holes", "t", "t", "m³", "t/m³"]
+    })
+
+    # Copy hint
+    st.markdown('<div style="padding: 0 72px;"><div class="copy-hint">click any cell · select all · ctrl+c to copy</div></div>',
+                unsafe_allow_html=True)
+
+    # Render the table inside padded container using columns
+    _, tbl, _ = st.columns([1, 18, 1])
+    with tbl:
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True,
+            height=280,
+            column_config={
+                "Parameter": st.column_config.TextColumn("Parameter", width="large"),
+                "Value":     st.column_config.TextColumn("Value",     width="medium"),
+                "Unit":      st.column_config.TextColumn("Unit",      width="small"),
+            }
+        )
+
+    # Cost strip
     st.markdown(f"""
     <div style="padding: 0 72px;">
-    <div class="results-shell">
-
-        <div class="res-header">
-            <span class="res-header-icon">🔩</span>
-            <span class="res-header-txt">Computed output — drill &amp; blast parameters</span>
-        </div>
-
-        <div class="res-grid">
-            <div class="res-block">
-                <div class="res-block-label">burden distance</div>
-                <div class="res-block-val">{res['burden']:.3f}</div>
-                <div class="res-block-unit">metres</div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-label">hole spacing</div>
-                <div class="res-block-val">{res['spacing']:.3f}</div>
-                <div class="res-block-unit">metres</div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-label">drill holes</div>
-                <div class="res-block-val">{res['holes']}</div>
-                <div class="res-block-unit">count</div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-label">charge per hole</div>
-                <div class="res-block-val">{res['charge']:.4f}</div>
-                <div class="res-block-unit">tonnes</div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-label">total explosive</div>
-                <div class="res-block-val">{res['total_exp']:.3f}</div>
-                <div class="res-block-unit">tonnes</div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-label">rock volume</div>
-                <div class="res-block-val">{res['rock_vol']:.0f}</div>
-                <div class="res-block-unit">m³</div>
-            </div>
-            <div class="res-block accent" style="grid-column: span 3;">
-                <div class="res-block-label">powder factor</div>
-                <div class="res-block-val">{res['pf']:.4f}</div>
-                <div class="res-block-unit">t / m³</div>
-            </div>
-        </div>
-
         <div class="cost-strip">
             <div>
                 <div class="cost-lhs-label">Total Blasting Cost — Bench Estimate</div>
@@ -640,11 +527,10 @@ if "res" in st.session_state:
             </div>
             <div class="cost-figure">${res['cost']:,.2f}</div>
         </div>
-
-        <div class="ts-line">Calculated: {ts}</div>
-
-    </div>
     </div>
     """, unsafe_allow_html=True)
+
+    st.markdown(f'<div style="padding: 4px 72px;"><div class="ts-line">Calculated: {ts}</div></div>',
+                unsafe_allow_html=True)
 
     st.markdown('<div style="height:64px;"></div>', unsafe_allow_html=True)
